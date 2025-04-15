@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import Navbar from '../../components/Navbar';
 
 const ManagerDashboard = () => {
     const [showForm, setShowForm] = useState(false);
+    const [tasks, setTasks] = useState([]);
     const [taskData, setTaskData] = useState({
         name: '',
         team: '',
@@ -11,16 +12,58 @@ const ManagerDashboard = () => {
         description: ''
     });
 
+    // Fetch tasks on component mount
+    useEffect(() => {
+        fetchTasks();
+    }, []);
+
+    const fetchTasks = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/api/tasks');
+            const data = await response.json();
+            setTasks(data);
+        } catch (error) {
+            console.error('Error fetching tasks:', error);
+        }
+    };
+
+    const deleteTask = async (taskId) => {
+        if (window.confirm('Are you sure you want to delete this task?')) {
+            try {
+                const response = await fetch(`http://localhost:5000/api/tasks/${taskId}`, {
+                    method: 'DELETE',
+                });
+                
+                if (!response.ok) throw new Error('Failed to delete task');
+                
+                setTasks(tasks.filter(task => task._id !== taskId));
+            } catch (error) {
+                console.error('Error deleting task:', error);
+            }
+        }
+    };
+
     const handleInputChange = (e) => {
         setTaskData({ ...taskData, [e.target.name]: e.target.value });
     };
 
-    const handleFormSubmit = (e) => {
+    const handleFormSubmit = async (e) => {
         e.preventDefault();
-        console.log('Task Created:', taskData);
-        // Add your backend API call here
-        setShowForm(false);
-        setTaskData({ name: '', team: '', deadline: '', description: '' });
+        try {
+            const response = await fetch('http://localhost:5000/api/tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(taskData),
+            });
+            const data = await response.json();
+            setTasks([data, ...tasks]);
+            setShowForm(false);
+            setTaskData({ name: '', team: '', deadline: '', description: '' });
+        } catch (error) {
+            console.error('Error creating task:', error);
+        }
     };
 
     return (
@@ -39,6 +82,32 @@ const ManagerDashboard = () => {
                         </button>
                     </div>
                     <p className="pl-20 text-gray-600">Welcome, Manager! Here's your overview.</p>
+
+                    {/* Task List */}
+                    <div className="pl-20 mt-8 grid gap-4">
+                        {tasks.map((task) => (
+                            <div key={task._id} className="bg-white p-6 rounded-lg shadow">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <h3 className="text-xl font-semibold mb-2">{task.name}</h3>
+                                        <p className="text-gray-600 mb-2">Team: {task.team}</p>
+                                        <p className="text-gray-600 mb-2">
+                                            Deadline: {new Date(task.deadline).toLocaleDateString()}
+                                        </p>
+                                        <p className="text-gray-700">{task.description}</p>
+                                    </div>
+                                    <button
+                                        onClick={() => deleteTask(task._id)}
+                                        className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-colors"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Modal Form */}
