@@ -6,6 +6,7 @@ import EmployeeDashboard from './pages/employee/EmployeeDashboard';
 import ClientDashboard from './pages/client/ClientDashboard';
 import PrivateRoute from './components/PrivateRoute';
 import AuthContext from './context/authContext';
+import Home from './pages/Home';
 
 function App() {
   const authContext = useContext(AuthContext);
@@ -23,15 +24,13 @@ function App() {
         const targetPath = `/${user.role}`;
         console.log('Navigating to:', targetPath);
         navigate(targetPath);
-      } else if (window.location.pathname === '/') {
-        console.log('Navigating to /login');
-        navigate('/login');
       }
     }
   }, [isAuthenticated, user, navigate, loading]); // Include loading in dependencies
 
   return (
       <Routes>
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginPage />} />
         <Route
           path="/manager"
@@ -57,7 +56,6 @@ function App() {
             </PrivateRoute>
           }
         />
-        <Route path="/" element={<Navigate to="/login" />} />
       </Routes>
   );
 }

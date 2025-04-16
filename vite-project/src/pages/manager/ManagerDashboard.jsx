@@ -4,17 +4,27 @@ import Navbar from '../../components/Navbar';
 
 const ManagerDashboard = () => {
     const [showForm, setShowForm] = useState(false);
+    const [showRegisterForm, setShowRegisterForm] = useState(false);
     const [tasks, setTasks] = useState([]);
+    const [clients, setClients] = useState([]);
     const [taskData, setTaskData] = useState({
         name: '',
         team: '',
+        clientName: '',
         deadline: '',
         description: ''
     });
+    const [userData, setUserData] = useState({
+        name: '',
+        email: '',
+        password: '',
+        role: ''
+    });
 
-    // Fetch tasks on component mount
+    // Fetch tasks and clients on component mount
     useEffect(() => {
         fetchTasks();
+        fetchClients();
     }, []);
 
     const fetchTasks = async () => {
@@ -24,6 +34,17 @@ const ManagerDashboard = () => {
             setTasks(data);
         } catch (error) {
             console.error('Error fetching tasks:', error);
+        }
+    };
+
+    const fetchClients = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/clients');
+            if (!response.ok) throw new Error('Failed to fetch clients');
+            const data = await response.json();
+            setClients(data);
+        } catch (error) {
+            console.error('Error fetching clients:', error);
         }
     };
 
@@ -50,19 +71,55 @@ const ManagerDashboard = () => {
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         try {
+            // Find the selected client's ID
+            const selectedClient = clients.find(client => client.name === taskData.clientName);
+            if (!selectedClient) throw new Error('Client not found');
+
             const response = await fetch('http://localhost:5000/api/tasks', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(taskData),
+                body: JSON.stringify({
+                    ...taskData,
+                    clientId: selectedClient._id
+                }),
             });
+
+            if (!response.ok) throw new Error('Failed to create task');
+            
             const data = await response.json();
             setTasks([data, ...tasks]);
             setShowForm(false);
-            setTaskData({ name: '', team: '', deadline: '', description: '' });
+            setTaskData({ name: '', team: '', clientName: '', deadline: '', description: '' });
         } catch (error) {
             console.error('Error creating task:', error);
+        }
+    };
+
+    const handleRegisterUser = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.msg || 'Registration failed');
+            }
+
+            setShowRegisterForm(false);
+            setUserData({ name: '', email: '', password: '', role: '' });
+            alert('User registered successfully');
+        } catch (error) {
+            console.error('Registration error:', error);
+            alert(error.message);
         }
     };
 
@@ -74,12 +131,20 @@ const ManagerDashboard = () => {
                 <div className="container mx-auto py-8 px-4">
                     <div className="pl-20 mb-6 flex items-center justify-between">
                         <h1 className="text-3xl font-semibold text-gray-800">Manager Dashboard</h1>
-                        <button
-                            onClick={() => setShowForm(true)}
-                            className="bg-[#38a3a5] hover:bg-[#22577a] text-white font-semibold px-5 py-2 rounded-lg shadow transition duration-300"
-                        >
-                            + New Task
-                        </button>
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => setShowForm(true)}
+                                className="bg-[#38a3a5] hover:bg-[#22577a] text-white font-semibold px-5 py-2 rounded-lg shadow transition duration-300"
+                            >
+                                + New Task
+                            </button>
+                            <button
+                                onClick={() => setShowRegisterForm(true)}
+                                className="bg-[#38a3a5] hover:bg-[#22577a] text-white font-semibold px-5 py-2 rounded-lg shadow transition duration-300"
+                            >
+                                + Register User
+                            </button>
+                        </div>
                     </div>
                     <p className="pl-20 text-gray-600">Welcome, Manager! Here's your overview.</p>
 
@@ -91,6 +156,7 @@ const ManagerDashboard = () => {
                                     <div>
                                         <h3 className="text-xl font-semibold mb-2">{task.name}</h3>
                                         <p className="text-gray-600 mb-2">Team: {task.team}</p>
+                                        <p className="text-gray-600 mb-2">Client: {task.clientName}</p>
                                         <p className="text-gray-600 mb-2">
                                             Deadline: {new Date(task.deadline).toLocaleDateString()}
                                         </p>
@@ -139,6 +205,23 @@ const ManagerDashboard = () => {
                                     />
                                 </div>
                                 <div>
+                                    <label className="block text-gray-700 font-semibold mb-1">Client Name</label>
+                                    <select
+                                        name="clientName"
+                                        value={taskData.clientName}
+                                        onChange={handleInputChange}
+                                        required
+                                        className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#22577a]"
+                                    >
+                                        <option value="">Select Client</option>
+                                        {clients.map((client) => (
+                                            <option key={client._id} value={client.name}>
+                                                {client.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
                                     <label className="block text-gray-700 font-semibold mb-1">Deadline</label>
                                     <input
                                         type="date"
@@ -173,6 +256,75 @@ const ManagerDashboard = () => {
                                         className="bg-[#38a3a5] hover:bg-[#22577a] text-white font-semibold px-4 py-2 rounded-md"
                                     >
                                         Create Task
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* Registration Modal */}
+                {showRegisterForm && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                        <div className="bg-white rounded-xl w-full max-w-md p-8 shadow-lg">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6">Register New User</h2>
+                            <form onSubmit={handleRegisterUser} className="space-y-4">
+                                <div>
+                                    <label className="block text-gray-700 font-semibold mb-1">Name</label>
+                                    <input
+                                        type="text"
+                                        value={userData.name}
+                                        onChange={(e) => setUserData({...userData, name: e.target.value})}
+                                        required
+                                        className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#22577a]"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-gray-700 font-semibold mb-1">Email</label>
+                                    <input
+                                        type="email"
+                                        value={userData.email}
+                                        onChange={(e) => setUserData({...userData, email: e.target.value})}
+                                        required
+                                        className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#22577a]"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-gray-700 font-semibold mb-1">Password</label>
+                                    <input
+                                        type="password"
+                                        value={userData.password}
+                                        onChange={(e) => setUserData({...userData, password: e.target.value})}
+                                        required
+                                        className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#22577a]"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-gray-700 font-semibold mb-1">Role</label>
+                                    <select
+                                        value={userData.role}
+                                        onChange={(e) => setUserData({...userData, role: e.target.value})}
+                                        required
+                                        className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#22577a]"
+                                    >
+                                        <option value="">Select Role</option>
+                                        <option value="employee">Employee</option>
+                                        <option value="client">Client</option>
+                                    </select>
+                                </div>
+                                <div className="flex justify-end space-x-4 mt-6">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowRegisterForm(false)}
+                                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-4 py-2 rounded-md"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="bg-[#38a3a5] hover:bg-[#22577a] text-white font-semibold px-4 py-2 rounded-md"
+                                    >
+                                        Register User
                                     </button>
                                 </div>
                             </form>

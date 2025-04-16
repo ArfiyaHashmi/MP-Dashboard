@@ -1,7 +1,7 @@
 // controllers/authController.js
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js'; // Assuming your User model is in models/User.js
+import User from '../models/user.js'; // Assuming your User model is in models/User.js
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -106,4 +106,17 @@ export const getUser = async (req, res) => {
     console.error(err.message);
     res.status(500).send('Server error');
   }
+};
+
+// @route   GET /api/auth/clients
+// @desc    Get all clients
+// @access  Private
+export const getClients = async (req, res) => {
+    try {
+        const clients = await User.find({ role: 'client' }).select('name email');
+        res.status(200).json(clients);
+    } catch (error) {
+        console.error('Error fetching clients:', error);
+        res.status(500).json({ error: 'Failed to fetch clients' });
+    }
 };

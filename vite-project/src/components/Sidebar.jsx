@@ -17,7 +17,7 @@ const Sidebar = () => {
 
   const menuItems = [
     { name: 'Home', icon: <Home size={20} /> },
-    { name: 'Projects', icon: <FolderKanban size={20} /> },
+    { name: 'Chats', icon: <FolderKanban size={20} /> },
     { name: 'Tasks', icon: <ListTodo size={20} /> },
     { name: 'Analytics', icon: <BarChart2 size={20} /> },
   ];

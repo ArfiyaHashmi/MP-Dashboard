@@ -59,6 +59,7 @@ const EmployeeDashboard = () => {
               <div key={task._id} className="bg-white rounded-lg shadow p-6">
                 <h3 className="text-xl font-semibold mb-2">{task.name}</h3>
                 <p className="text-gray-600 mb-2">Team: {task.team}</p>
+                <p className="text-gray-600 mb-2">Client: {task.clientName}</p>
                 <p className="text-gray-600 mb-2">
                   Deadline: {new Date(task.deadline).toLocaleDateString()}
                 </p>

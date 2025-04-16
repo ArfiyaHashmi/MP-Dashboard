@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';  // Add this import
 import connectDB from './config/db.js'; // Correct ESM import
 import authRoutes from './routes/authRoutes.js'; // Assuming you have auth routes
+import taskRoutes from './routes/taskRoutes.js';  // Add this import
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -30,7 +31,7 @@ app.use(express.json({ extended: false }));
 
 // Define Routes
 app.use('/api/auth', authRoutes);
-// ... other routes
+app.use('/api', taskRoutes);  // This means /api/tasks/client-tasks
 
 // Error handling middleware
 app.use((err, req, res, next) => {
