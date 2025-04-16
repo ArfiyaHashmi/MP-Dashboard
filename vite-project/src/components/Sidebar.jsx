@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Menu,
   Home,
@@ -10,9 +11,32 @@ import {
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeItem, setActiveItem] = useState('Home');
+  const navigate = useNavigate();
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleItemClick = (itemName) => {
+    setActiveItem(itemName);
+    
+    // Navigate based on the item clicked
+    switch (itemName) {
+      case 'Home':
+        navigate('/');
+        break;
+      case 'Tasks':
+        navigate('/tasks');
+        break;
+      case 'Chats':
+        // Add navigation for Chats when implemented
+        break;
+      case 'Analytics':
+        // Add navigation for Analytics when implemented
+        break;
+      default:
+        break;
+    }
   };
 
   const menuItems = [
@@ -40,7 +64,7 @@ const Sidebar = () => {
         {menuItems.map((item) => (
           <div
             key={item.name}
-            onClick={() => setActiveItem(item.name)}
+            onClick={() => handleItemClick(item.name)}
             className={`
               flex items-center gap-3 cursor-pointer rounded-md px-3 py-2
               transition-all duration-300 ease-in-out
