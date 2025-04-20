@@ -1,17 +1,31 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useContext } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Menu,
   Home,
-  FolderKanban,
+  MessageSquare,
   ListTodo,
   BarChart2,
 } from 'lucide-react';
+import AuthContext from '../context/authContext';
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeItem, setActiveItem] = useState('Home');
+  const location = useLocation();
   const navigate = useNavigate();
+  const authContext = useContext(AuthContext);
+  const { user } = authContext;
+
+  // Set active item based on current path
+  const getActiveItem = () => {
+    const path = location.pathname;
+    if (path.includes('/tasks')) return 'Tasks';
+    if (path.includes('/chat')) return 'Chat';
+    if (path.includes('/analytics')) return 'Analytics';
+    return 'Home';
+  };
+
+  const [activeItem, setActiveItem] = useState(getActiveItem());
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -19,7 +33,7 @@ const Sidebar = () => {
 
   const handleItemClick = (itemName) => {
     setActiveItem(itemName);
-    
+
     // Navigate based on the item clicked
     switch (itemName) {
       case 'Home':
@@ -28,8 +42,8 @@ const Sidebar = () => {
       case 'Tasks':
         navigate('/tasks');
         break;
-      case 'Chats':
-        // Add navigation for Chats when implemented
+      case 'Chat':
+        navigate('/chat');
         break;
       case 'Analytics':
         // Add navigation for Analytics when implemented
@@ -39,12 +53,27 @@ const Sidebar = () => {
     }
   };
 
-  const menuItems = [
-    { name: 'Home', icon: <Home size={20} /> },
-    { name: 'Chats', icon: <FolderKanban size={20} /> },
-    { name: 'Tasks', icon: <ListTodo size={20} /> },
-    { name: 'Analytics', icon: <BarChart2 size={20} /> },
-  ];
+  // Filter menu items based on user role
+  const getMenuItems = () => {
+    const baseItems = [
+      { name: 'Home', icon: <Home size={20} /> },
+      { name: 'Tasks', icon: <ListTodo size={20} /> },
+    ];
+
+    // Only managers and employees can access chat
+    if (user && (user.role === 'manager' || user.role === 'employee')) {
+      baseItems.splice(1, 0, { name: 'Chat', icon: <MessageSquare size={20} /> });
+    }
+
+    // Only managers can access analytics (when implemented)
+    if (user && user.role === 'manager') {
+      baseItems.push({ name: 'Analytics', icon: <BarChart2 size={20} /> });
+    }
+
+    return baseItems;
+  };
+
+  const menuItems = getMenuItems();
 
   return (
     <div

@@ -4,11 +4,12 @@ import LoginPage from './pages/auth/LoginPage';
 import ManagerDashboard from './pages/manager/ManagerDashboard';
 import EmployeeDashboard from './pages/employee/EmployeeDashboard';
 import ClientDashboard from './pages/client/ClientDashboard';
-import TasksPage from './pages/tasks/TasksPage'; // Import the new TasksPage
+import TasksPage from './pages/tasks/TasksPage';
+import ChatPage from './pages/chat/ChatPage';
 import PrivateRoute from './components/PrivateRoute';
 import AuthContext from './context/authContext';
 import Home from './pages/Home';
-import GlobalStyles from './context/GlobalStyles'; // Import GlobalStyles
+import GlobalStyles from './context/GlobalStyles';
 
 function App() {
   const authContext = useContext(AuthContext);
@@ -24,9 +25,13 @@ function App() {
     console.log('useEffect in App.jsx - isAuthenticated:', isAuthenticated, 'user:', user, 'pathname:', window.location.pathname, 'loading:', loading);
     if (!loading) {
       if (isAuthenticated && user && user.role) {
-        const targetPath = `/${user.role}`;
-        console.log('Navigating to:', targetPath);
-        navigate(targetPath);
+        // Only redirect to role dashboard if user is at root or login page
+        const currentPath = window.location.pathname;
+        if (currentPath === '/' || currentPath === '/login') {
+          const targetPath = `/${user.role}`;
+          console.log('Navigating to:', targetPath);
+          navigate(targetPath);
+        }
       }
     }
   }, [isAuthenticated, user, navigate, loading]);
@@ -61,12 +66,21 @@ function App() {
             </PrivateRoute>
           }
         />
-        {/* Add TasksPage route accessible to all roles */}
+        {/* Tasks route accessible to all roles */}
         <Route
           path="/tasks"
           element={
             <PrivateRoute allowedRoles={['manager', 'employee', 'client']}>
               <TasksPage />
+            </PrivateRoute>
+          }
+        />
+        {/* Chat route accessible to managers and employees only */}
+        <Route
+          path="/chat"
+          element={
+            <PrivateRoute allowedRoles={['manager', 'employee']}>
+              <ChatPage />
             </PrivateRoute>
           }
         />

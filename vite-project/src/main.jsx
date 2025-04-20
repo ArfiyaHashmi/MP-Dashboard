@@ -4,13 +4,16 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.jsx';
 import AuthState from './context/authState';
+import { ChatProvider } from './context/chatContext';
 
 const root = createRoot(document.getElementById('root'));
 root.render(
   <StrictMode>
     <AuthState>
-      <Router> {/* Add Router here */}
-        <App />
+      <Router>
+        <ChatProvider>
+          <App />
+        </ChatProvider>
       </Router>
     </AuthState>
   </StrictMode>
