@@ -107,6 +107,51 @@ npm run dev
 
 3. Access the application at `http://localhost:5173`
 
+### Login Instructions
+
+1. After starting the application, navigate to the login page at `http://localhost:5173/login`
+
+2. Use the following test credentials to log in with different roles:
+
+   **Manager:**
+   - Email: manager@example.com
+   - Password: password123
+   - Role: manager
+
+   **Employee:**
+   - Email: employee@example.com
+   - Password: password123
+   - Role: employee
+
+   **Client:**
+   - Email: client@example.com
+   - Password: password123
+   - Role: client
+
+3. Select the appropriate role from the dropdown menu when logging in
+
+4. After successful login, you will be redirected to the corresponding dashboard based on your role
+
+5. To register new users (as a manager):
+   - Log in as a manager
+   - Click the "+ Register User" button on the manager dashboard
+   - Fill in the required information and select a role
+   - Click "Register" to create the new user
+
+### Using the Chat Feature
+
+1. Log in as a manager or employee (chat is not available for clients)
+
+2. Click on the "Chat" option in the sidebar
+
+3. Select a project from the list on the left side
+
+4. Start sending messages in the chat window
+
+5. All messages are saved and will be available when you return to the chat
+
+6. Managers and employees can discuss project details in real-time
+
 ## User Roles and Permissions
 
 ### Manager
