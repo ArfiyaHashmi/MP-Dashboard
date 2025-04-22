@@ -21,7 +21,7 @@ const Sidebar = () => {
     const path = location.pathname;
     if (path.includes('/tasks')) return 'Tasks';
     if (path.includes('/chat')) return 'Chat';
-    if (path.includes('/analytics')) return 'Analytics';
+    // if (path.includes('/analytics')) return 'Analytics';
     return 'Home';
   };
 
@@ -45,9 +45,9 @@ const Sidebar = () => {
       case 'Chat':
         navigate('/chat');
         break;
-      case 'Analytics':
-        // Add navigation for Analytics when implemented
-        break;
+      // case 'Analytics':
+      //   // Add navigation for Analytics when implemented
+      //   break;
       default:
         break;
     }
@@ -66,9 +66,9 @@ const Sidebar = () => {
     }
 
     // Only managers can access analytics (when implemented)
-    if (user && user.role === 'manager') {
-      baseItems.push({ name: 'Analytics', icon: <BarChart2 size={20} /> });
-    }
+    // if (user && user.role === 'manager') {
+    //   baseItems.push({ name: 'Analytics', icon: <BarChart2 size={20} /> });
+    // }
 
     return baseItems;
   };

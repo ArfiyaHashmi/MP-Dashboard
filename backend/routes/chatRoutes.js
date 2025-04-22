@@ -10,7 +10,8 @@ router.use(authMiddleware);
 // Get all tasks with chat information
 router.get('/tasks-with-chats', getTasksWithChats);
 
-// Get chat for a specific task
+// Get chat for a specific 
+// 3task
 router.get('/:taskId', getChatByTaskId);
 
 // Add message to chat

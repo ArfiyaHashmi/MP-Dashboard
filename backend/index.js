@@ -9,6 +9,7 @@ import authRoutes from './routes/authRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import dotenv from 'dotenv';
+import boards from './routes/boards.js';
 
 dotenv.config();
 
@@ -43,6 +44,7 @@ app.use(express.json({ extended: false }));
 app.use('/api/auth', authRoutes);
 app.use('/api', taskRoutes);
 app.use('/api/chats', chatRoutes);
+app.use('/api/boards', boards);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
